@@ -4,6 +4,13 @@ class PostsController < ApplicationController
     @group = Group.find(params[:group_id])
     @post = Post.new
   end
+  def edit
+    @group = Group.find(params[:group_id])
+    @post = @group.posts.find(params[:id])
+    if current_user != @post.user
+      redirect_to root_path, alert: "You have no permission."
+    end
+  end
   def create
     @group = Group.find(params[:group_id])
     @post = Post.new(post_params)
@@ -13,6 +20,27 @@ class PostsController < ApplicationController
       redirect_to group_path(@group)
     else
       render :new
+    end
+  end
+  def update
+    @group = Group.find(params[:group_id])
+    @post = @group.posts.find(params[:id])
+    if current_user != @post.user
+      redirect_to root_path, alert: "You have no permission."
+    else
+      @post.update(post_params)
+      redirect_to account_posts_path, notice: "Update Success"
+    end
+  end
+  def destroy
+    @group = Group.find(params[:group_id])
+    @post = Post.find(params[:id])
+    if current_user != @post.user
+      redirect_to root_path, alert: "You have no permission."
+    else
+      @post.destroy
+      flash[:alert] = "Post deleted"
+      redirect_to account_posts_path
     end
   end
   private
